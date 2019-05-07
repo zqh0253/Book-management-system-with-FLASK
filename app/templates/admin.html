@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1> Hi, Admin {{current_user.username}} ! </h1>
+	<a href="{{url_for('admin_add_book')}}">Add Book</a>
+	<a href="{{url_for('admin_del_book')}}">delete Book</a>
+	<a href="{{url_for('admin_add_card')}}">Add Card</a>
+	<a href="{{url_for('admin_del_card')}}">Delete Card</a>
+{% endblock %}
