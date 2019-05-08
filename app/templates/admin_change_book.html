@@ -11,6 +11,29 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
+        {% if type == 'Add' %}
+        <p>
+            {{ form.author.label }}<br>
+            {{ form.author }}<br>
+            {% for error in form.author.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.type.label }}<br>
+            {{ form.type }}<br>
+            {% for error in form.type.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.year.label }}<br>
+            {{ form.year }}<br>
+            {% for error in form.year.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        {% endif %}
         <p>
             {{ form.amount.label }}<br>
             {{ form.amount }}<br>

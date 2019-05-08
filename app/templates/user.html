@@ -2,5 +2,6 @@
 
 {% block content %}
 <h1> Hi, Admin {{current_user.username}} ! </h1>
-<a href="{{url_for('user_borrow_book')}}">Borrow Book</a>
+<a href="{{url_for('user_borrow_book')}}">Borrow book</a>
+<a href="{{url_for('user_check')}}">Check the book I borrowed</a>
 {% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1> Hi, User {{current_user.username}} ! </h1>
+<form action="" method="post">
+	 {{ form.hidden_tag() }}
+        <p>
+            {{ form.mul.label }}<br>
+            {{ form.mul }}<br>
+            {% for error in form.mul.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.context.label }}<br>
+            {{ form.context(size=64) }}<br>
+            {% for error in form.context.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+     </form>
+
+     {% if res != None %}
+     <form action="" method="post">
+	 {{ form2.hidden_tag() }}
+        <p>
+            {{ form2.mul.label }}<br>
+            {{ form2.mul }}<br>
+            {% for error in form2.mul.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form2.submit() }}</p>
+     </form>
+     {% endif %}
+{% endblock %}

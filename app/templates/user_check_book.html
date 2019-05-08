@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1> Hi, Admin {{current_user.username}} ! </h1>
+<form action="" method="post">
+        <p>
+            {{ form.mul.label }}<br>
+            {{ form.mul }}<br>
+            {% for error in form.mul.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+     </form>
+{% endblock %}

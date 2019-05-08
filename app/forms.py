@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, IntegerField, SubmitField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, IntegerField, SubmitField, SelectField, SelectMultipleField
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo,  optional
 from app.models import User
 
 class LoginForm(FlaskForm):
@@ -26,7 +26,23 @@ class RegistrationForm(FlaskForm):
 		if user is not None:
 			raise ValidationError('Please use a different email address.')
 
-class ChangeBookForm(FlaskForm):
+class AddBookForm(FlaskForm):
+	bookname = StringField('Book\'s name', validators=[DataRequired()])
+	type = StringField('Book\'s type', validators=[DataRequired()])
+	author = StringField('Author', validators=[DataRequired()]) 
+	year = IntegerField('Public Year', validators=[DataRequired()])
+	amount = IntegerField('Amount', validators=[DataRequired()])
+	submit = SubmitField('Execute')
+
+	def validate_amount(self, amount):
+		if amount.data <= 0:
+			raise ValidationError('The amount of the book has to be a positive number.')
+
+	def validate_year(self, year):
+		if year.data<1000:
+			raise ValidationError('Please input the right public year.')
+
+class DelBookForm(FlaskForm):
 	bookname = StringField('Book\'s name', validators=[DataRequired()])
 	amount = IntegerField('Amount', validators=[DataRequired()])
 	submit = SubmitField('Execute')
@@ -48,3 +64,13 @@ class DelCardForm(FlaskForm):
 	uid = IntegerField('User\' id', validators=[DataRequired()])
 	submit = SubmitField('Execute')
 
+class BorrowBookForm(FlaskForm):
+	mul = SelectMultipleField('mul', coerce=int)
+	submit = SubmitField('Borrow')
+
+
+class FindBookForm(FlaskForm):
+	choices = [(1,'bookname'),(2,'author'),(3,'type'),(4,'year')]
+	mul = SelectField('mul', choices = choices, coerce = int)
+	context = StringField('context', validators=[DataRequired()])
+	submit = SubmitField('Search')
