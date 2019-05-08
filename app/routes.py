@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, AddBookForm, DelBookForm, AddCardForm, DelCardForm, BorrowBookForm, FindBookForm
+from app.forms import LoginForm, RegistrationForm, AddBookForm, DelBookForm, AddCardForm, DelCardForm, BorrowBookForm, FindBookForm, ReturnBookForm
 from flask_login import current_user, login_user
 from app.models import User, Book, Card, Borrow
 from flask_login import logout_user
@@ -129,6 +129,8 @@ def admin_del_card():
 			flash('Fail! No such user.')
 		elif find_card is None:
 			flash('Fail! The user do not have a card already.')
+		elif db.session.query(Borrow).filter_by(user_id = find_card.user_id).first()!=None:
+			flash('Fail! The card cannot be deleted before all the borrowed books being returned.')
 		else:
 			db.session.delete(find_card)
 			db.session.commit()
@@ -149,14 +151,18 @@ def user():
 		return redirect(url_for(check_user()))
 	return render_template('user.html')
 
+res = []
 @app.route('/user_borrow_book', methods = ['GET','POST'])
 def user_borrow_book():
+	global res
+	card = db.session.query(Card).filter_by(user_id = current_user.id).first()
 	if check_user()!='':
 		return redirect(url_for(check_user()))
+	if card == None:
+		flash('You have not got a borrow card. Your id is {}, ask the admin to create a card for this id.'.format(current_user.id))
 	form = FindBookForm()
-	res = None
-	form2 = None
-	if form.validate_on_submit():
+	form2 = BorrowBookForm()
+	if form.submit1.data and form.validate_on_submit():
 		if form.mul.data == 1:
 			res = db.session.query(Book).filter_by(bookname = form.context.data).all()
 		elif form.mul.data == 2:
@@ -165,13 +171,62 @@ def user_borrow_book():
 			res = db.session.query(Book).filter_by(type = form.context.data).all()
 		else:
 			res = db.session.query(Book).filter_by(year = int(form.context.data)).all()
-		form2 = BorrowBookForm()
-		form2.mul.choices = [(book.id, book.bookname) for book in res]
+	form2.mul.choices = [(book.id, book.bookname) for book in res]
+	nonexistbook = []
+	cannotborrow = []
+	success = []
+	if form2 and form2.submit2.data and form2.validate_on_submit():
+		for bid in form2.mul.data: 
+			book = db.session.query(Book).filter_by(id = bid).first()
+			if book is None:
+				nonexistbook.append(book.bookname+' ')
+			elif card.borrow_num == 0:
+				cannotborrow.append(book.bookname+' ')
+			else:
+				card.borrow_num -= 1
+				book.remain -= 1
+				success.append(book.bookname+' ')
+				record = Borrow(book_id = book.id, user_id = current_user.id)
+				db.session.add(record)
+		if success!=[]:
+			flash('Succeed to borrow books: {}'.format(''.join(success)))
+		if nonexistbook!=[]:
+			flash('Fail to borrow books for lack of remains in library: {}'.format(''.join(nonexistbook)))
+		if cannotborrow!=[]:
+			flash('Fail to borrow books for disability of your card: {}'.format(''.join(cannotborrow)))
+		db.session.commit()
 	return render_template('user_borrow_book.html', form = form, form2 = form2, res = res)
 
 
 @app.route('/user_check_book', methods = ['GET','POST'])
 def user_check():
-	form = CheckForm(['a','b','c'])
-	return render_template('user_check_book.html',form = form)
+	card = db.session.query(Card).filter_by(user_id = current_user.id).first()
+	if check_user()!='':
+		return redirect(url_for(check_user()))
+	if card == None:
+		flash('You have not got a borrow card. Your id is {}, ask the admin to create a card for this id.'.format(current_user.id))
+	borrow_list = db.session.query(Borrow.book_id).filter_by(user_id = card.user_id).all()
+	return render_template('user_check_book.html', borrow_list = borrow_list)
 
+@app.route('/user_return_book', methods = ['GET','POST'])
+def user_return_book():
+	card = db.session.query(Card).filter_by(user_id = current_user.id).first()
+	if check_user()!='':
+		return redirect(url_for(check_user()))
+	if card == None:
+		flash('You have not got a borrow card. Your id is {}, ask the admin to create a card for this id.'.format(current_user.id))
+	form = ReturnBookForm()
+	res = db.session.query(Borrow).filter_by(user_id = current_user.id).all()
+	if res != None:
+		res.sort(key = lambda x:db.session.query(Book).filter_by(id = x.book_id).first().bookname)
+	form.mul.choices = [(record.id, db.session.query(Book).filter_by(id = record.book_id).first().bookname) for record in res]
+	if form.validate_on_submit():
+		for record in form.mul.data:
+			rec = db.session.query(Borrow).filter_by(id = record).first()
+			db.session.delete(rec)
+			db.session.query(Book).filter_by(id = rec.book_id).first().remain += 1
+			db.session.query(Card).filter_by(user_id = rec.user_id).first().borrow_num += 1
+		db.session.commit()
+		flash('Succeed to return the books!')
+		return redirect(url_for('user_return_book'))
+	return render_template('user_return_book.html', form = form)

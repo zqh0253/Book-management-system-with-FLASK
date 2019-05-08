@@ -1,15 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1> Hi, Admin {{current_user.username}} ! </h1>
-<form action="" method="post">
+<h1> Hi, User {{current_user.username}} ! </h1>
         <p>
-            {{ form.mul.label }}<br>
-            {{ form.mul }}<br>
-            {% for error in form.mul.errors %}
-            <span style="color: red;">[{{ error }}]</span>
+            {% for record in borrow_list %}
+            	{{record.book_id}}
             {% endfor %}
         </p>
-        <p>{{ form.submit() }}</p>
-     </form>
 {% endblock %}

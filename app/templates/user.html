@@ -1,7 +1,9 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
-<h1> Hi, Admin {{current_user.username}} ! </h1>
-<a href="{{url_for('user_borrow_book')}}">Borrow book</a>
-<a href="{{url_for('user_check')}}">Check the book I borrowed</a>
+{% block app_content %}
+<h1> Hi, User {{current_user.username}} ! </h1>
+<a href="{{url_for('user_borrow_book')}}"><input type="button" name="test" value="Borrow books"/></a>
+<a href="{{url_for('user_return_book')}}"><input type="button" name="test" value="Return books"/></a>
+<a href="{{url_for('user_check')}}"><input type="button" name="test" value="Check borrowed books"/></a>
 {% endblock %}

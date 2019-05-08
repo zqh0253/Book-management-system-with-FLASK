@@ -66,11 +66,15 @@ class DelCardForm(FlaskForm):
 
 class BorrowBookForm(FlaskForm):
 	mul = SelectMultipleField('mul', coerce=int)
-	submit = SubmitField('Borrow')
+	submit2 = SubmitField('Borrow')
 
 
 class FindBookForm(FlaskForm):
 	choices = [(1,'bookname'),(2,'author'),(3,'type'),(4,'year')]
 	mul = SelectField('mul', choices = choices, coerce = int)
 	context = StringField('context', validators=[DataRequired()])
-	submit = SubmitField('Search')
+	submit1 = SubmitField('Search')
+
+class ReturnBookForm(FlaskForm):
+	mul = SelectMultipleField('mul', coerce=int)
+	submit = SubmitField('Return')
