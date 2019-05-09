@@ -155,11 +155,14 @@ res = []
 @app.route('/user_borrow_book', methods = ['GET','POST'])
 def user_borrow_book():
 	global res
+	if not current_user.is_authenticated:
+		return redirect(url_for('login'))
 	card = db.session.query(Card).filter_by(user_id = current_user.id).first()
 	if check_user()!='':
 		return redirect(url_for(check_user()))
 	if card == None:
 		flash('You have not got a borrow card. Your id is {}, ask the admin to create a card for this id.'.format(current_user.id))
+		return redirect(url_for('index'))
 	form = FindBookForm()
 	form2 = BorrowBookForm()
 	if form.submit1.data and form.validate_on_submit():
@@ -200,21 +203,28 @@ def user_borrow_book():
 
 @app.route('/user_check_book', methods = ['GET','POST'])
 def user_check():
+	if not current_user.is_authenticated:
+		return redirect(url_for('login'))
 	card = db.session.query(Card).filter_by(user_id = current_user.id).first()
 	if check_user()!='':
 		return redirect(url_for(check_user()))
 	if card == None:
 		flash('You have not got a borrow card. Your id is {}, ask the admin to create a card for this id.'.format(current_user.id))
-	borrow_list = db.session.query(Borrow.book_id).filter_by(user_id = card.user_id).all()
-	return render_template('user_check_book.html', borrow_list = borrow_list)
+		return redirect(url_for('index'))
+	borrow_list = [x.book_id for x in db.session.query(Borrow).filter_by(user_id = card.user_id).all()]
+	book_list = [db.session.query(Book).filter_by(id = x).first() for x in borrow_list]
+	return render_template('user_check_book.html', book_list = book_list, num = card.borrow_num)
 
 @app.route('/user_return_book', methods = ['GET','POST'])
 def user_return_book():
+	if not current_user.is_authenticated:
+		return redirect(url_for('login'))
 	card = db.session.query(Card).filter_by(user_id = current_user.id).first()
 	if check_user()!='':
 		return redirect(url_for(check_user()))
 	if card == None:
 		flash('You have not got a borrow card. Your id is {}, ask the admin to create a card for this id.'.format(current_user.id))
+		return redirect(url_for('index'))
 	form = ReturnBookForm()
 	res = db.session.query(Borrow).filter_by(user_id = current_user.id).all()
 	if res != None:

@@ -2,10 +2,22 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
+
+<style type="text/css">
+.divForm{
+    margin:0 auto;   
+    width:1200px;   
+    height:200px;
+    padding-left:520px; 
+}
+</style>
+
+    <div class="divForm">
     <h1>Hi, User {{current_user.username}} ! </h1>
     <div class="row">
     <div class="col-md-4">
         {{ wtf.quick_form(form) }}
+    </div>
     </div>
     </div>
 

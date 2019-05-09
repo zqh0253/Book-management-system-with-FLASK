@@ -1,10 +1,90 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
-<h1> Hi, User {{current_user.username}} ! </h1>
-        <p>
-            {% for record in borrow_list %}
-            	{{record.book_id}}
-            {% endfor %}
-        </p>
+{% block app_content %}
+<h1> 
+	<div class="text" style=" text-align:center;"> Hi, User {{current_user.username}} !</div> 
+</h1>
+<p>
+<div class="text" style=" text-align:center;">Here is the book you have borrowed:  </div>
+</p>
+
+
+<!-- Javascript goes in the document HEAD -->
+<script type="text/javascript">
+function altRows(id){
+	if(document.getElementsByTagName){  
+		
+		var table = document.getElementById(id);  
+		var rows = table.getElementsByTagName("tr"); 
+		 
+		for(i = 0; i < rows.length; i++){          
+			if(i % 2 == 0){
+				rows[i].className = "evenrowcolor";
+			}else{
+				rows[i].className = "oddrowcolor";
+			}      
+		}
+	}
+}
+window.onload=function(){
+	altRows('alternatecolor');
+}
+</script>
+
+<!-- CSS goes in the document HEAD or added to your external stylesheet -->
+<style type="text/css">
+table.altrowstable {
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	color:#333333;
+	border-width: 1px;
+	border-color: #a9c6c9;
+	border-collapse: collapse;
+}
+table.altrowstable th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #a9c6c9;
+}
+table.altrowstable td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #a9c6c9;
+}
+.oddrowcolor{
+	background-color:#d4e3e5;
+}
+.evenrowcolor{
+	background-color:#c3dde0;
+}
+</style>
+
+<!-- Table goes in the document BODY -->
+<table class="altrowstable" id="alternatecolor" style="text-align: center" align = "center">
+<tr>
+<th>Bookname</th>
+<th>Author</th>
+<th>Type</th>
+<th>Public Year</th>
+</tr>
+
+{% for book in book_list %}
+<tr>
+<td>{{book.bookname}}</td>
+<td>{{book.author}}</td>
+<td>{{book.type}}</td>
+<td>{{book.year}}</td>
+</tr>
+{% endfor %}
+</table>
+<!--  The table code can be found here: http://www.textfixer/tutorials/css-tables.php#css-table03 -->
+
+<p>
+<div class="text" style=" text-align:center;">You can have {{num}} book{{'s' if num>1 else ''}} to borrow.</div>
+</p>
+
+
 {% endblock %}

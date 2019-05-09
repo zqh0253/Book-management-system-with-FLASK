@@ -2,10 +2,22 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-	<h1> Hi, {{current_user.username}} ! </h1>
+
+<style type="text/css">
+.divForm{
+    margin:0 auto;   
+    width:1200px;   
+    height:200px;
+    padding-left:520px; 
+}
+</style>
+
+<h1><div class="text" style=" text-align:center;"> Hi, {{current_user.username}} ! </div></h1>
+<div class="divForm">
 	{% if isadmin %}
 	<a href="admin"><input type="button" name="test" value="Admin Page"/></a>
 	{% else %}
 	<a href="user"><input type="button" name="test" value="User Page"/></a>
 	{% endif %}
+</div>
 {% endblock %}

@@ -2,10 +2,24 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <h1>{% if type == 'Add' %} Add {% else %} Delete {% endif %} book</h1>
+
+<style type="text/css">
+.divForm{
+    margin:0 auto;   
+    width:1200px;   
+    height:200px;
+    padding-left:450px; 
+}
+</style>
+
+    <h1>
+        <div class="text" style="text-align:center;">{% if type == 'Add' %} Add {% else %} Delete {% endif %} book</div>
+    </h1>
+    <div class="divForm">
     <div class="row">
     <div class="col-md-4">
         {{ wtf.quick_form(form) }}
+    </div>
     </div>
     </div>
 

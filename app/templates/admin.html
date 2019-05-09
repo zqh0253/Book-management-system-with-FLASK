@@ -1,9 +1,34 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-	<h1> Hi, Admin {{current_user.username}} ! </h1>
-	<a href="{{url_for('admin_add_book')}}"><input type="button" name="test" value="Add Book"/></a>
-	<a href="{{url_for('admin_del_book')}}"><input type="button" name="test" value="delete Book"/></a>
-	<a href="{{url_for('admin_add_card')}}"><input type="button" name="test" value="Add Card"/></a>
-	<a href="{{url_for('admin_del_card')}}"><input type="button" name="test" value="Delete Card"/></a>
+
+<style type="text/css">
+.divForm{
+    margin:0 auto;   
+    width:1200px;   
+    height:200px;
+    padding-left:520px; 
+}
+</style>
+
+	<h1> 
+		<div class="text" style=" text-align:center;">Hi, Admin {{current_user.username}} ! </div>
+	</h1>
+
+<div class="divForm">
+	<a href="{{url_for('admin_add_book')}}" align="center"><input type="button" name="test" value="Add Book"/></a>
+	<br>
+	<br>
+	<br>
+	<a href="{{url_for('admin_del_book')}}" align="center"><input type="button" name="test" value="delete Book"/></a>
+	<br>
+	<br>
+	<br>
+	<a href="{{url_for('admin_add_card')}}" align="center"><input type="button" name="test" value="Add Card"/></a>
+	<br>
+	<br>
+	<br>
+	<a href="{{url_for('admin_del_card')}}" align="center"><input type="button" name="test" value="Delete Card"/></a>
+	<br>
+</div>
 {% endblock %}

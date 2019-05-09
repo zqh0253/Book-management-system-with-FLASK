@@ -2,17 +2,32 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
+
+<style type="text/css">
+.divForm{
+    margin:0 auto;   
+    width:1400px;   
+    height:200px;
+    padding-left:480px; 
+}
+</style>
+
+<div class="divForm">
     <h1>Hi, User {{current_user.username}} ! </h1>
+    <p>You can borrow books here.</p>
     <div class="row">
     <div class="col-md-4">
         {{ wtf.quick_form(form) }}
     </div>
     </div>
 {% if res != [] %}
+	<br>
+	<p>Select the books that you want to borrow.</p>
     <div class="row">
     <div class="col-md-4">
         {{ wtf.quick_form(form2) }}
     </div>
     </div>
      {% endif %}
+</div>
 {% endblock %}

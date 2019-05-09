@@ -2,8 +2,26 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-<h1> Hi, User {{current_user.username}} ! </h1>
+
+<style type="text/css">
+.divForm{
+    margin:0 auto;   
+    width:1200px;   
+    height:200px;
+    padding-left:520px; 
+}
+</style>
+
+<h1><div class="text" style=" text-align:center;"> Hi, User {{current_user.username}} ! </div></h1>
+<div class="divForm">
 <a href="{{url_for('user_borrow_book')}}"><input type="button" name="test" value="Borrow books"/></a>
+<br>
+<br>
+<br>
 <a href="{{url_for('user_return_book')}}"><input type="button" name="test" value="Return books"/></a>
+<br>
+<br>
+<br>
 <a href="{{url_for('user_check')}}"><input type="button" name="test" value="Check borrowed books"/></a>
+</div>
 {% endblock %}
