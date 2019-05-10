@@ -239,4 +239,4 @@ def user_return_book():
 		db.session.commit()
 		flash('Succeed to return the books!')
 		return redirect(url_for('user_return_book'))
-	return render_template('user_return_book.html', form = form)
+	return render_template('user_return_book.html', form = form, borrow_list = form.mul.choices)

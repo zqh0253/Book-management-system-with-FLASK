@@ -8,9 +8,11 @@
     margin:0 auto;   
     width:1200px;   
     height:200px;
-    padding-left:520px; 
+    padding-left:480px; 
 }
 </style>
+
+{% if borrow_list!=[] %}
 
     <div class="divForm">
     <h1>Hi, User {{current_user.username}} ! </h1>
@@ -20,5 +22,14 @@
     </div>
     </div>
     </div>
+
+{% else %}
+    <p>
+        <div class="text" style=" text-align:center;">You have no books to return.</div>
+        <div class="divForm">
+            <a href="{{url_for('user_borrow_book')}}">Go and borrow some books now!</a>
+        </div>
+    </p>
+{% endif %}
 
 {% endblock %}
