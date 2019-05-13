@@ -88,9 +88,10 @@
     + 管理员界面
         + 管理员初始界面： 可以选择执行相应的四种功能
             ![image](demo/admin.png)
-        + 图书入库界面： 填写表单向数据库添加图书
-            ![iamge](demo/admin_add_book.png)
+        + 图书入库界面： 填写表单向数据库添加图书<br>
             如果数据库中存在与当前添加的图书书名相同的图书，则只需要修改相应图书的remain(余额)，否则执行insert。
+            ![iamge](demo/admin_add_book.png)
+            
             ```python
                 form = AddBookForm()
 	            if form.validate_on_submit():
@@ -103,6 +104,111 @@
 		            db.session.commit()
 		            flash('Succeed to add books to the library!') 
             ```
+        + 图书出库界面： 填写表单在数据库中删除图书<br>
+            如果数据库中不存在想要删除的图书，或者库存比想要删除的数量少，都不会执行删除功能。如果在删除后，图书余量变为0，则将该图书从数据库中删除。
+            ![image](demo/admin_del_book.png)
+            
+            ```python
+            	form = DelBookForm()
+	            if form.validate_on_submit():
+                find_book = db.session.query(Book).filter_by(bookname = form.bookname.data).first()
+                if find_book is None or find_book.remain < form.amount.data:
+                    flash('Failed to Delete book from the library!')
+                    return redirect(url_for('admin_del_book'))
+		        else:
+                    find_book.remain -= form.amount.data
+                    if find_book.remain == 0:
+				        db.session.delete(find_book)
+		        db.session.commit()
+		        flash('Succeed to delete books to the library!') 
+		        return redirect(url_for('admin'))
+            ```
+
+        + 增加借书卡界面： 填写表单为用户办理借书卡<br>
+            首先，通过表单中提供的用户id在User, Card中查询，若User中有该用户而Card中无该用户的借书卡，则向数据库中添加新的借书卡。
+            ![iamge](demo/admin_add_card.png)
+            ```python
+            form = AddCardForm()
+	        if form.validate_on_submit():
+            find_card = db.session.query(Card).filter_by(user_id = form.uid.data).first()
+            find_user = db.session.query(User).filter_by(id = form.uid.data).first()
+		    if find_user is None:
+			    flash('Fail! No such user.')
+		    elif find_card is None:
+                card = Card(user_id = form.uid.data, borrow_num = form.ceil.data)
+                db.session.add(card)
+                db.session.commit()
+                flash('Succeed to add card for user {}'.format(form.uid.data))
+		    else:
+			    flash('The user already has a card!')
+            ```
+        + 删除借书卡界面： 移除某用户的借书卡
+            ![image](demo/admin_del_card.png)
+            首先，通过表单中提供的用户id在User, Card, Borrow中查询，若User和Card中有该用户的借书卡且该用户目前尚无借书记录，则将其借书卡从数据库中删除。
+            ```python
+            form = DelCardForm()
+	        if form.validate_on_submit():
+                find_card = db.session.query(Card).filter_by(user_id = form.uid.data).first()
+                find_user = db.session.query(User).filter_by(id = form.uid.data).first()
+                if find_user is None:
+        			flash('Fail! No such user.')
+		        elif find_card is None:
+			        flash('Fail! The user do not have a card already.')
+		        elif db.session.query(Borrow).filter_by(user_id = find_card.user_id).first()!=None:
+			        flash('Fail! The card cannot be deleted before all the borrowed books being returned.')
+		        else:
+                    db.session.delete(find_card)
+                    db.session.commit()
+                    flash('Succeed to delete the card.')
+            ```
+    + 用户界面
+        + 用户借书界面： 提供图书查询以及随后的借书功能<br>
+            首先，用户可以选择关键词（书名，类别，作者，出版年份）对图书进行查询，结果将以第二张复选表单的形式呈现。
+            ![image](demo/borrow_book1.png)
+            ```python
+            form = FindBookForm()
+	        form2 = BorrowBookForm()
+	        if form.submit1.data and form.validate_on_submit():
+		        if form.mul.data == 1:
+			        res = db.session.query(Book).filter_by(bookname = form.context.data).all()
+		        elif form.mul.data == 2:
+		        	res = db.session.query(Book).filter_by(author = form.context.data).all()
+		        elif form.mul.data == 3:
+		        	res = db.session.query(Book).filter_by(type = form.context.data).all()
+		        else:
+		        	res = db.session.query(Book).filter_by(year = int(form.context.data)).all()
+            ```
+            随后用户可以在第二张表单上选择自己想要借阅的图书，点击提交按钮即可完成借阅。
+            ![image](demo/borrow_book2.png)
+            ```python
+            form2.mul.choices = [(book.id, book.bookname) for book in res]
+            nonexistbook = []
+            cannotborrow = []
+            success = []
+            if form2 and form2.submit2.data and form2.validate_on_submit():
+		        for bid in form2.mul.data: 
+                    book = db.session.query(Book).filter_by(id = bid).first()
+                    if book is None:
+				        nonexistbook.append(book.bookname+' ')
+			        elif card.borrow_num == 0:
+				        cannotborrow.append(book.bookname+' ')
+			        else:
+                        card.borrow_num -= 1
+                        book.remain -= 1
+                        success.append(book.bookname+' ')
+                        record = Borrow(book_id = book.id, user_id = current_user.id)
+                        db.session.add(record)
+		        if success!=[]:
+			        flash('Succeed to borrow books: {}'.format(''.join(success)))
+		        if nonexistbook!=[]:
+			        flash('Fail to borrow books for lack of remains in library: {}'.format(''.join(nonexistbook)))
+		        if cannotborrow!=[]:
+			        flash('Fail to borrow books for disability of your card: {}'.format(''.join(cannotborrow)))
+		        db.session.commit()
+            ```
+
+            
+
 
 
 
