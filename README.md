@@ -162,6 +162,8 @@
                     flash('Succeed to delete the card.')
             ```
     + 用户界面
+        + 用户初始界面： 可以选择相应的三个功能。
+        ![iamge](demo/user.png)
         + 用户借书界面： 提供图书查询以及随后的借书功能<br>
             首先，用户可以选择关键词（书名，类别，作者，出版年份）对图书进行查询，结果将以第二张复选表单的形式呈现。
             ![image](demo/borrow_book1.png)
@@ -206,6 +208,34 @@
 			        flash('Fail to borrow books for disability of your card: {}'.format(''.join(cannotborrow)))
 		        db.session.commit()
             ```
+        + 用户还书界面：通过表单的形式显示用户已经借阅的图书，并且可以通过复选来完成还书。
+        ![image](demo/return_book.png)
+        ```python
+        form = ReturnBookForm()
+        res = db.session.query(Borrow).filter_by(user_id = current_user.id).all()
+        if res != None:
+		    res.sort(key = lambda x:db.session.query(Book).filter_by(id = x.book_id).first().bookname)
+	    form.mul.choices = [(record.id, db.session.query(Book).filter_by(id = record.book_id).first().bookname) for record in res]
+	    if form.validate_on_submit():
+		    for record in form.mul.data:
+                rec = db.session.query(Borrow).filter_by(id = record).first()
+                db.session.delete(rec)
+                db.session.query(Book).filter_by(id = rec.book_id).first().remain += 1
+                db.session.query(Card).filter_by(user_id = rec.user_id).first().borrow_num += 1
+            db.session.commit()
+            flash('Succeed to return the books!')
+            return redirect(url_for('user_return_book'))
+        ```
+    + 用户查询已经借阅图书： 以表格的形式呈现借阅过的图书以及信息, 并告诉用户其借书卡还拥有多少借书余额。
+    ![image](demo/check_book.png)
+    ```python
+        if card == None:
+		    flash('You have not got a borrow card. Your id is {}, ask the admin to create a card for this id.'.format(current_user.id))
+		return redirect(url_for('index'))
+	    borrow_list = [x.book_id for x in db.session.query(Borrow).filter_by(user_id = card.user_id).all()]
+	    book_list = [db.session.query(Book).filter_by(id = x).first() for x in borrow_list]
+    ```
+    
 
             
 
